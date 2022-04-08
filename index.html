@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" href="style.css" type="text/css">
+        <meta charset="utf-8" />
+        <title>Frugal - Best Value App using Vue.js</title>
+    </head>
+    <body>
+        <div id="app">
+            <div class="ui-tabs">
+                <div class="tabs flex-tabs">
+                    <div class="panel">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th>Item 1</th>
+                                    <th>Item 2</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td></th>
+                                    <td><input type="number" v-model="A_size"/></td>
+                                    <td><input type="number" v-model="B_size"/></td>
+                                </tr>
+                                <tr>
+                                    <td>Quantity</td>
+                                    <td><input type="number" v-model="A_qty"/></td>
+                                    <td><input type="number" v-model="B_qty"/></td>
+                                </tr>
+                                <tr>
+                                    <td>Total Qty</td>
+                                    <td><span type="text" v-if="A_val > 0">{{ A_size * A_qty }}</span></td>
+                                    <td><span type="text" v-if="B_val > 0">{{ B_size * B_qty }}</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Total Cost </td>
+                                    <td><input type="number" v-model="A_cost" min="0" step="0.1" pattern="^\d+(?:\.\d{1,2})?$"/></td>
+                                    <td><input type="number" v-model="B_cost" min="0" step="0.1" pattern="^\d+(?:\.\d{1,2})?$"/></td>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td>Best Value </td>
+                                    <td><span type="text" v-if="B_val > A_val">{{ bestVal }}%</span></td>
+                                    <td><span type="text" v-if="A_val > B_val">{{ bestVal }}%</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Total Qty</td>
+                                    <td><span type="text" v-if="B_val > A_val">{{ A_val }}</span></td>
+                                    <td><span type="text" v-if="A_val > B_val">{{ B_val }}</span></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+
+                        <button v-on:click="getValues">Do the stuff</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script src="vue.js"></script>
+        <script>
+            let app = Vue.createApp({
+                data: function(){
+                    return {
+                        A_size: 1,
+                        A_qty: 3,
+                        A_cost: 1.99,
+                        A_val: 0,
+
+                        B_size: 1,
+                        B_qty: 2,
+                        B_cost: 1.99,
+                        B_val: 0,
+
+                        bestVal: 0
+
+                       // invalid: false
+                    }
+                },
+                methods: {
+                    getValues() {
+                        if ((this.A_size > 0 && this.A_qty > 0 && this.A_cost > 0) &&
+                            (this.B_size > 0 && this.B_qty > 0 && this.B_cost > 0)) {
+
+                                var minVal = 0,
+                                    maxVal = 0,
+                                    A_total = this.A_size * this.A_qty,
+                                    B_total = this.B_size * this.B_qty;
+
+                                //we need the lowest value to divide the total by
+                                if (A_total > B_total) {
+                                    minVal = B_total;
+                                    maxVal = A_total;
+                                }
+                                else {
+                                    minVal = A_total;
+                                    maxVal = B_total;
+                                }
+
+                                this.bestVal = ((maxVal - minVal) / minVal) * 100;
+                          
+
+                            this.A_val = this.calculateValue(this.A_size, this.A_qty, this.A_cost);
+                            this.B_val = this.calculateValue(this.B_size, this.B_qty, this.B_cost);
+                        } 
+                        else  {
+                          //  invalid = true;
+                            return false;
+                        }
+                    },
+                    calculateValue(size, qty, cost) {
+                        let val;
+
+                        val = cost / (size * qty);
+
+                        return val.toFixed(2)
+                    }
+                }
+            })
+            app.mount("#app")
+        </script>
+    </body>
+</html>
